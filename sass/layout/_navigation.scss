@@ -1,0 +1,207 @@
+.navigation {
+    /* actual menu button that is a label for the radio button that is hidden 
+     so we can click it and active the radio button
+  */
+    &__button {
+        background-color: $white;
+        height: 7rem;
+        width: 7rem;
+        border-radius: 50%;
+        position: fixed;
+        cursor: pointer;
+        top: 6rem;
+        right: 6rem;
+        z-index: 1001;
+        text-align: center;
+        box-shadow: 0 1rem 3rem rgba($color: $black, $alpha: 0.4);
+
+        &:hover {
+            .navigation__icon::before {
+                top: -1rem;
+            }
+            .navigation __icon::after {
+                top: 1rem;
+            }
+        }
+
+        @include respond(tab-port) {
+            top: 4rem;
+            right: 4rem;
+        }
+        @include respond(phone) {
+            top: 3.5rem;
+            right: 3.5rem;
+        }
+    }
+
+    /*
+  menu button which comproses of a span and the before and after elements
+  */
+    &__icon {
+        margin-top: 3.5rem;
+        position: relative;
+
+        /* styles for the 3 bar */
+        &,
+        &::before,
+        &::after {
+            transition: top 0.2s;
+            transition: transform 0.2s;
+            display: inline-block;
+            width: 3rem;
+            height: 2px;
+            background-color: $grey-dark;
+        }
+
+        &::before,
+        &::after {
+            content: '';
+            position: absolute;
+            left: 0;
+        }
+
+        /* move the before up and the after down to get the hamburger effect after absolute positioning */
+        &::before {
+            top: -0.8rem;
+        }
+
+        &::after {
+            top: 0.8rem;
+        }
+    }
+
+    /*
+  close menu button hidden behind the menu button
+  */
+    &__background {
+        height: 6rem;
+        width: 6rem;
+        border-radius: 50%;
+        position: fixed;
+        top: 6.5rem;
+        right: 6.5rem;
+        background-image: radial-gradient(
+            $color-primary-light,
+            $color-primary-dark
+        );
+        z-index: 990;
+        transition: transform 0.5s cubic-bezier(0.86, 0, 0.07, 1);
+
+        @include respond(tab-port) {
+            top: 4.5rem;
+            right: 4.5rem;
+        }
+        @include respond(phone) {
+            top: 4rem;
+            right: 4rem;
+        }
+    }
+
+    /*
+  nav section hidden behind both tmenu buttons that will scale out when a user opens the menu
+  */
+    &__nav {
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 999;
+
+        /* hide the navigation*/
+        opacity: 0;
+        width: 0%;
+        overflow: hidden;
+
+        transition: all 0.5s;
+    }
+
+    /*
+  menu items to choose from
+  */
+    &__list {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        list-style: none;
+    }
+
+    &__item {
+        margin: 1rem;
+    }
+
+    &__link {
+        /*
+    progressive hover effect for nav links
+    set background image to sharp gradient that go immediately from one color to the next 
+    and then animate that gradient moving when we change the background position
+    */
+        &,
+        &:link,
+        &:visited {
+            display: inline-block;
+            font-size: 3rem;
+            font-weight: 300;
+            color: $white;
+            text-decoration: none;
+            text-transform: uppercase;
+            /* set gradient and its size */
+            background-image: linear-gradient(
+                120deg,
+                transparent 0%,
+                transparent 50%,
+                $white 50%
+            );
+            background-size: 220%;
+            transition: all 0.4s;
+            span {
+                margin-right: 1rem;
+            }
+
+            @include respond(tab-port) {
+                font-size: 2rem;
+            }
+        }
+
+        /* change gradient posiion on hover*/
+        &:hover,
+        &:active {
+            background-image: linear-gradient(
+                50deg,
+                transparent 0%,
+                transparent 50%,
+                $white 50%
+            );
+            background-position: 100%;
+            color: $color-primary;
+            transform: translateX(1rem);
+        }
+    }
+
+    &__checkbox {
+        display: none;
+    }
+
+    &__checkbox:checked ~ &__background {
+        transform: scale(90);
+    }
+
+    &__checkbox:checked ~ &__nav {
+        width: 100%;
+        opacity: 1;
+    }
+
+    &__checkbox:checked + &__button &__icon {
+        background-color: transparent;
+    }
+
+    &__checkbox:checked + &__button &__icon::before {
+        transform: rotate(-225deg);
+        top: 50%;
+    }
+
+    &__checkbox:checked + &__button &__icon::after {
+        transform: rotate(225deg);
+        top: 50%;
+    }
+}

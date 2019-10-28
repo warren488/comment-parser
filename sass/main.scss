@@ -1,0 +1,67 @@
+/** 
+check
+@file: Main
+@purpose: this is the main file that distributes all the css
+*/
+
+@import "abstract/functions";
+@import "abstract/mixins";
+@import "abstract/variables";
+
+@import "base/base";
+@import "base/animations";
+@import "base/typography";
+@import "base/utilities";
+
+@import "components/button";
+@import "components/composition";
+@import "components/feature-box";
+@import "components/cards";
+@import "components/story";
+@import "components/form";
+@import "components/popup";
+@import "components/bg-video";
+
+@import "pages/home.scss";
+
+@import "layout/header";
+@import "layout/footer";
+@import "layout/navigation";
+@import "layout/grid";
+
+/**  placed in typography in the course */
+.heading-primary {
+  color: $white;
+  text-transform: uppercase;
+  backface-visibility: hidden;
+  margin-bottom: 6rem;
+  &--main {
+    display: block;
+    font-size: 6rem;
+    font-weight: 400;
+    letter-spacing: 3.5rem;
+    animation: moveInLeft 1s;
+
+    /** BP
+    s
+    j
+    */
+    @include respond(phone) {
+      letter-spacing: 1rem;
+      font-size: 5rem;
+    }
+  }
+
+  &--sub {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 1.75rem;
+    animation: moveInRight 1s;
+
+    /** BP */
+    @include respond(phone) {
+      letter-spacing: .5rem;
+    }
+  }
+}

@@ -1,0 +1,71 @@
+@import "../abstract/variables";
+
+%col {
+  /* for the (tab-port) responsive aspect we make the columns into individual rows instead */
+  float: left;
+  &:not(:last-child) {
+    margin-right: $gutter-horizontal;
+
+    /* BP */
+    @include respond(tab-port) {
+      margin-right: auto !important;
+      margin-bottom: $gutter-vertical-small;
+    }
+  }
+  /* BP */
+  @include respond(tab-port) {
+    width: 100% !important;
+    float: none;
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
+
+.row {
+  @include clearfix;
+  max-width: $grid-width;
+  margin: 0 auto;
+
+  &:not(:last-child) {
+    margin-bottom: $gutter-vertical;
+
+    @include respond(tab-port) {
+      margin-bottom: $gutter-vertical-small;
+    }
+  }
+
+  @include respond(tab-port) {
+    padding: 3rem;
+    max-width: $grid-width * .8;
+  }
+  .col-1-of-2 {
+    width: calc((100% - #{$gutter-horizontal}) / 2);
+    @extend %col;
+  }
+  .col-1-of-3 {
+    width: calc(((100% - #{$gutter-horizontal * 2}) / 3));
+    @extend %col;
+  }
+  .col-1-of-4 {
+    width: calc(((100% - #{$gutter-horizontal * 3}) / 4));
+    @extend %col;
+  }
+  .col-2-of-3 {
+    width: calc(
+      ((100% - #{$gutter-horizontal * 2}) / 3) * 2 + #{$gutter-horizontal}
+    );
+    @extend %col;
+  }
+  .col-2-of-4 {
+    width: calc(
+      ((100% - #{$gutter-horizontal * 3}) / 4) * 2 + #{$gutter-horizontal}
+    );
+    @extend %col;
+  }
+  .col-3-of-4 {
+    width: calc(
+      ((100% - #{$gutter-horizontal * 3}) / 4) * 3 + #{$gutter-horizontal * 2}
+    );
+    @extend %col;
+  }
+}

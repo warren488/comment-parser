@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="template.css">
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+    <link rel="stylesheet" href="s-o-theme.css">
+    <title>CSS</title>
+</head>
+
+<body>
+    <header class="main-header">
+        <h1>
+            CSS Documentation
+        </h1>
+    </header>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                check
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-scss linenums:5">
+      
+@import "abstract/functions";
+@import "abstract/mixins";
+@import "abstract/variables";
+
+    </pre>
+  </code>
+    </div>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                placed in typography in the course
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-scss linenums:33">
+      
+.heading-primary {
+  color: $white;
+  text-transform: uppercase;
+  backface-visibility: hidden;
+  margin-bottom: 6rem;
+  &--main {
+    display: block;
+    font-size: 6rem;
+    font-weight: 400;
+    letter-spacing: 3.5rem;
+    animation: moveInLeft 1s;
+
+    
+    </pre>
+  </code>
+    </div>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                BP
+s
+j
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-scss linenums:48">
+          @include respond(phone) {
+      letter-spacing: 1rem;
+      font-size: 5rem;
+    }
+  }
+    </pre>
+  </code>
+    </div>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                BP
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-scss linenums:63">
+      
+    @include respond(phone) {
+      letter-spacing: 1rem;
+      font-size: 5rem;
+    }
+  }
+
+  &--sub {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 1.75rem;
+    animation: moveInRight 1s;
+
+    
+    </pre>
+  </code>
+    </div>
+</body>
+
+</html>

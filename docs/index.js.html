@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="template.css">
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+    <link rel="stylesheet" href="s-o-theme.css">
+    <title>CSS</title>
+</head>
+
+<body>
+    <header class="main-header">
+        <h1>
+            CSS Documentation
+        </h1>
+    </header>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-scss linenums:55">
+  let cssLines = css.split('\n').map(el => el.trim());
+  let cssLinesUntrimmed = css.split('\n');
+
+  return {
+    css,
+    cssLines,
+    cssLinesUntrimmed
+  };
+}
+
+    </pre>
+  </code>
+    </div>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                This function checks if comment is a one liner
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-scss linenums:69">
+function isOneLine(cssLines, line) {
+  /** here we look to see if the comment has a closing tag on the same line as its opening tag
+   * to deremine if its a one liner but what happens is that the description returned will have no new
+   * line chars in it which is how we determine how long the comment is
+   */
+  return cssLines[line].includes('*/');
+}
+
+/**
+ * trim the string all the way up until the end of the current comment
+    </pre>
+  </code>
+    </div>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                here we look to see if the comment has a closing tag on the same line as its opening tag
+to deremine if its a one liner but what happens is that the description returned will have no new
+line chars in it which is how we determine how long the comment is
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-scss linenums:74">
+  return cssLines[line].includes('*/');
+}
+
+/**
+ * trim the string all the way up until the end of the current comment
+ * @function getCodeAfterComment
+ * */
+function getCodeAfterComment(cssLinesUntrimmed, comment) {
+  return cssLinesUntrimmed
+    .slice(comment.line + 1, comment.line + 11)
+    </pre>
+  </code>
+    </div>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                trim the string all the way up until the end of the current comment
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-scss linenums:81">
+function getCodeAfterComment(cssLinesUntrimmed, comment) {
+  return cssLinesUntrimmed
+    .slice(comment.line + 1, comment.line + 11)
+    .join('\n');
+}
+
+/**
+ *  get the code after the comment but for multiline strings
+ * @function getCodeAfterCommentForMultiLine
+ * */
+    </pre>
+  </code>
+    </div>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                get the code after the comment but for multiline strings
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-scss linenums:91">
+function getCodeAfterCommentForMultiLine(
+  cssLines,
+  parsedComment,
+  cssLinesUntrimmed
+) {
+  let endOfComment = getMultilineCommentEndLine(cssLines, parsedComment);
+  // console.log(endOfComment);
+  return cssLinesUntrimmed
+    .slice(endOfComment + 1, endOfComment + 11)
+    .join('\n');
+    </pre>
+  </code>
+    </div>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-js linenums:105">
+  // let lastLine =
+  //   parsedComment.line + parsedComment.source.match(/\n/g).length + 1;
+  /** some comments end differently */
+  // let endLine =
+  //   cssLines.indexOf('*/', parsedComment.line) > 0
+  //     ? cssLines.indexOf('*/', parsedComment.line)
+  //     : cssLines.indexOf('* */', parsedComment.line);
+  let endLine = getCommentEndLine(parsedComment.line, cssLines);
+  console.log(`${parsedComment.line} ends at: ${endLine}`);
+  return endLine;
+    </pre>
+  </code>
+    </div>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                some comments end differently
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-js linenums:108">
+  // let endLine =
+  //   cssLines.indexOf('*/', parsedComment.line) > 0
+  //     ? cssLines.indexOf('*/', parsedComment.line)
+  //     : cssLines.indexOf('* */', parsedComment.line);
+  let endLine = getCommentEndLine(parsedComment.line, cssLines);
+  console.log(`${parsedComment.line} ends at: ${endLine}`);
+  return endLine;
+}
+function getCommentEndLine(line, cssLines) {
+  if (cssLines[line].includes('*/')) {
+    </pre>
+  </code>
+    </div>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                if we have a one line comment we can do this
+it will not work tho with multiline (that have spacing before each line)
+because the comment.source goes through formatting
+TODO: revisit after implementing bypass for having to trim css lines
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-scss linenums:144">
+      if (parsedComments[i].tags.find(el => el.tag == 'ref') !== -1) {
+        console.log('here', parsedComments[i].line);
+        insertRef(parsedComments, i);
+      }
+      if (isOneLine(cssLines, parsedComments[i].line)) {
+        let md = getCodeAfterComment(cssLinesUntrimmed, parsedComments[i]);
+        parsedComments[i].htmlSnippet = gethtmlForSnippet(
+          md,
+          parsedComments[i].line + 1,
+          language
+    </pre>
+  </code>
+    </div>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                we&#x27;ll eventually have to do other stuff here like check for other ref files etc
+d
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-scss linenums:191">
+async function getRefComments() {
+  return parseFile('./ref.comment.js');
+}
+
+async function insertRef(parsedComments, i) {
+  let refComments = await getRefComments();
+  let refNo;
+  parsedComments[i].tags.map(el => {
+    if (el.tag == 'ref') {
+      refNo = el.name;
+    </pre>
+  </code>
+    </div>
+    <div class="card">
+        <header class="sub-heads">
+            <h2>
+                get the properties we want off of the ref comment
+            </h2>
+        </header>
+        <code>
+    <pre class="prettyprint lang-js linenums:204">
+  let { tags, description, source } = refComments.find(el => {
+    return el.tags.find(el => el.tag == 'ref') !== -1;
+  });
+  parsedComments[i] = Object.assign(parsedComments[i], {
+    tags,
+    description,
+    source
+  });
+}
+
+    </pre>
+  </code>
+    </div>
+</body>
+
+</html>
