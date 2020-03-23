@@ -9,6 +9,67 @@
     <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
     <link rel="stylesheet" href="s-o-theme.css">
     <title>CSS</title>
+    <style>
+        body {
+            padding: 10px;
+            color: #333;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+        }
+
+        .main-header {
+            text-align: center;
+        }
+
+        .tag-head {
+
+            background-color: #aab;
+            padding: 3px 5px;
+            color: #556;
+        }
+
+        .tag-head h3 {
+            margin: 0px;
+        }
+
+        .sub-heads {
+            color: white;
+            background-color: #333;
+            padding: 5px 20px;
+            /* display: inline-block; */
+            /* width: 100%; */
+            margin: 0 auto;
+        }
+
+        .card {
+            width: 100%;
+            box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.4);
+            /* padding: 5px; */
+            margin: 10px 5px;
+        }
+
+        /** prettyprint patch to show all lines */
+
+        li.L0,
+        li.L2,
+        li.L1,
+        li.L3,
+        li.L4,
+        li.L5,
+        li.L6,
+        li.L7,
+        li.L8,
+        li.L9 {
+            list-style-type: decimal !important;
+        }
+
+        .tag {
+            border-color: #333;
+        }
+        .tag-head__tag-name {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+    </style>
 </head>
 
 <body>
@@ -24,11 +85,16 @@
                 {{description}}
             </h2>
         </header>
-        {{!-- {{#each snippet}}
-    <p>
-        {{../snippetStart}}{{this}}
-    </p>
-    {{/each}} --}}
+        <div class="tag-container">
+            {{#each tags}}
+            <header class="tag-head">
+                <h3><span class="tag-head__tag-name">{{tag}}</span> {{name}}</h3>
+            </header>
+            <div>
+                <p>{{description}}</p>
+            </div>
+            {{/each}}
+        </div>
         {{{htmlSnippet}}}
     </div>
     {{/each}}

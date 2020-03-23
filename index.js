@@ -1,43 +1,58 @@
-const parse = require('comment-parser');
-const fs = require('fs');
-const showdown = require('showdown');
-const Handlebars = require('handlebars');
-const { promisify } = require('util');
-
+const parse = require("comment-parser");
+const fs = require("fs");
+const showdown = require("showdown");
+const Handlebars = require("handlebars");
+const { promisify } = require("util");
+const argv = require("yargs")
+  .options({
+    i: {
+      alias: "include",
+      demandOption: false,
+      describe: "file extensions which we should parse",
+      type: "array"
+    },
+    p: {
+      alias: "path",
+      demandOption: true,
+      describe: "path to the file or folder to document",
+      type: "string"
+    }
+  })
+  .config("conf").argv;
 let parseFile = promisify(parse.file);
 
 async function doStuff2(path) {
-  if (path.endsWith('html')) {
+  if (path.endsWith("html")) {
     return;
   }
-  let comments = [];
-  let folderList = [];
   if (fs.lstatSync(path).isDirectory()) {
     let files = fs.readdirSync(path);
     let fileList = [];
     for (const file of files) {
       if (
-        file.endsWith('html') ||
-        file.endsWith('docs') ||
-        file.includes('node_modules')
+        file.endsWith("html") ||
+        file.endsWith("docs") ||
+        file.includes("node_modules") ||
+        file.startsWith(".git")
       ) {
         continue;
       }
       if (!fs.lstatSync(`${path}/` + file).isDirectory()) {
-        fileList.push({ name: file, path: `${file}.html` });
-        generateFile(path, file);
+        fileList.push({ name: file, path: `${file}.doc.html` });
+        await generateFile(`${path}/` + file);
       } else {
-        fileList.push({ name: file, path: `../${file}/docs` });
+        fileList.push({ name: file, path: `../${file}/docs/` });
         doStuff2(`${path}/` + file);
       }
     } //forof files
-    // console.log(fileList);
-    generatefolderIndex(fileList, path);
+    generateIndexHTML(fileList, path);
   } else {
-    console.log('called on file doind nothing');
+    await generateFile(path);
+
+    console.log("called on file doing nothing");
   }
 }
-doStuff2('.');
+doStuff2(argv.p);
 
 function gethtmlForSnippet(md, lineStart, lang) {
   return `<code>
@@ -47,13 +62,13 @@ ${md}
   </code>`;
 }
 
-function getCSSAndLines(path, file) {
-  let css = fs.readFileSync(`${path}/` + file).toString('utf8');
+function getCSSAndLines(filePath) {
+  let css = fs.readFileSync(filePath).toString("utf8");
   /**
    * @ref 1
    */
-  let cssLines = css.split('\n').map(el => el.trim());
-  let cssLinesUntrimmed = css.split('\n');
+  let cssLines = css.split("\n").map(el => el.trim());
+  let cssLinesUntrimmed = css.split("\n");
 
   return {
     css,
@@ -71,17 +86,18 @@ function isOneLine(cssLines, line) {
    * to deremine if its a one liner but what happens is that the description returned will have no new
    * line chars in it which is how we determine how long the comment is
    */
-  return cssLines[line].includes('*/');
+  return cssLines[line].includes("*/");
 }
 
 /**
  * trim the string all the way up until the end of the current comment
+ * THIS WORKS ONLY FOR SINGLE LINE COMMENTS!!!
  * @function getCodeAfterComment
  * */
 function getCodeAfterComment(cssLinesUntrimmed, comment) {
   return cssLinesUntrimmed
     .slice(comment.line + 1, comment.line + 11)
-    .join('\n');
+    .join("\n");
 }
 
 /**
@@ -93,44 +109,33 @@ function getCodeAfterCommentForMultiLine(
   parsedComment,
   cssLinesUntrimmed
 ) {
-  let endOfComment = getMultilineCommentEndLine(cssLines, parsedComment);
+  /** get the last line of the comment */
+  let endOfComment = getCommentEndLine(cssLines, parsedComment.line);
   // console.log(endOfComment);
   return cssLinesUntrimmed
     .slice(endOfComment + 1, endOfComment + 11)
-    .join('\n');
+    .join("\n");
 }
 
-function getMultilineCommentEndLine(cssLines, parsedComment) {
-  /** @fixme noMatch for some reason this search will return null for some comments */
-  // let lastLine =
-  //   parsedComment.line + parsedComment.source.match(/\n/g).length + 1;
-  /** some comments end differently */
-  // let endLine =
-  //   cssLines.indexOf('*/', parsedComment.line) > 0
-  //     ? cssLines.indexOf('*/', parsedComment.line)
-  //     : cssLines.indexOf('* */', parsedComment.line);
-  let endLine = getCommentEndLine(parsedComment.line, cssLines);
-  console.log(`${parsedComment.line} ends at: ${endLine}`);
-  return endLine;
-}
-function getCommentEndLine(line, cssLines) {
-  if (cssLines[line].includes('*/')) {
+function getCommentEndLine(cssLines, line) {
+  /** one line comment */
+  if (cssLines[line].includes("*/")) {
     return line;
   }
+  /** search for the next line greater than the current line that has a closing tag */
   let index = cssLines.findIndex(
-    (el, index) => index >= line && el.includes('*/')
+    (el, index) => index >= line && el.includes("*/")
   );
-  if (index !== -1) {
-    return index;
-  }
-  return -1;
+  return index;
 }
 
-async function generateFile(path, file) {
+async function generateFile(filePath) {
   let comments = [];
-  let language = file.split('.').pop();
-  let { css, cssLines, cssLinesUntrimmed } = getCSSAndLines(path, file);
-  await parseFile(`${path}/` + file).then(function(parsedComments) {
+  let language = filePath.split(".").pop();
+  /** get raw and semi transformed data */
+  let { css, cssLines, cssLinesUntrimmed } = getCSSAndLines(filePath);
+  /** extract comment data */
+  await parseFile(filePath).then(async function(parsedComments) {
     if (parsedComments.length === 0) {
       return;
     }
@@ -141,12 +146,15 @@ async function generateFile(path, file) {
       because the comment.source goes through formatting 
       TODO: revisit after implementing bypass for having to trim css lines
       */
-      if (parsedComments[i].tags.find(el => el.tag == 'ref') !== -1) {
-        console.log('here', parsedComments[i].line);
-        insertRef(parsedComments, i);
+      if (parsedComments[i].tags.findIndex(el => el.tag === "ref") !== -1) {
+        /** if we've made a reference to an external comment go ahead and insert that now */
+        console.log("here", parsedComments[i].line);
+        parsedComments = await insertRef(parsedComments, i);
       }
       if (isOneLine(cssLines, parsedComments[i].line)) {
+        /** gets 10 lines after the comment */
         let md = getCodeAfterComment(cssLinesUntrimmed, parsedComments[i]);
+        /** generate hmtl snippet and attach it to this comment */
         parsedComments[i].htmlSnippet = gethtmlForSnippet(
           md,
           parsedComments[i].line + 1,
@@ -160,24 +168,37 @@ async function generateFile(path, file) {
         );
         parsedComments[i].htmlSnippet = gethtmlForSnippet(
           md,
-          getMultilineCommentEndLine(cssLines, parsedComments[i]) + 1,
-          'scss'
+          getCommentEndLine(cssLines, parsedComments[i].line) + 1,
+          language
         );
       }
     }
     comments.push(...parsedComments);
   });
-  let template = fs.readFileSync(`./template.hbs`).toString('utf8');
-  console.log(comments);
-
-  fs.writeFileSync(
-    `${path}/docs/${file}.html`,
-    Handlebars.compile(template)({ comments })
-  );
+  {
+    let template = fs.readFileSync(`./template.hbs`).toString("utf8");
+    let directory = filePath.split("/").slice(0, -1).join('/');
+    let fileName = filePath.split("/").pop();
+    if (!fs.existsSync(`${directory}/docs`)) {
+      fs.mkdirSync(`${directory}/docs`);
+    }
+    fs.writeFileSync(
+      `${directory}/docs/${fileName}.doc.html`,
+      Handlebars.compile(template)({ comments })
+    );
+  }
 }
 
-function generatefolderIndex(folderList, path) {
-  let template = fs.readFileSync(`./folderList.hbs`).toString('utf8');
+/**
+ *
+ * @param {array} folderList array of folder to add to navigation on home page
+ * @param {string} path path to the output folder
+ */
+function generateIndexHTML(folderList, path) {
+  let template = fs.readFileSync(`./folderList.hbs`).toString("utf8");
+  if (!fs.existsSync(`${path}/docs`)) {
+    fs.mkdirSync(`${path}/docs`);
+  }
   fs.writeFileSync(
     `${path}/docs/index.html`,
     Handlebars.compile(template)({ folderList })
@@ -189,24 +210,50 @@ function generatefolderIndex(folderList, path) {
  * d
  */
 async function getRefComments() {
-  return parseFile('./ref.comment.js');
+  return parseFile("./ref.comment.js");
 }
 
+/**
+ * @function insertRef
+ * This function inserts reference comments that are not included in the actual source file but instead in a separate
+ * reference file and referenced by the source file so as to avoid clutter
+ */
 async function insertRef(parsedComments, i) {
   let refComments = await getRefComments();
   let refNo;
+  // get the ref tag from the comment and find out what it is referencing
   parsedComments[i].tags.map(el => {
-    if (el.tag == 'ref') {
+    if (el.tag == "ref") {
       refNo = el.name;
     }
   });
-  /** get the properties we want off of the ref comment */
+  /** using "el.name" (which is the reference number) find the comment that we want and
+   *  get the properties we want off of the ref comment */
   let { tags, description, source } = refComments.find(el => {
-    return el.tags.find(el => el.tag == 'ref') !== -1;
+    return (
+      el.tags.findIndex(el => el.tag === "refNo" && el.name === refNo) !== -1
+    );
   });
+  /**
+   * replace the properties of this comment with the right data, as if it were a normal
+   * comment all along
+   */
   parsedComments[i] = Object.assign(parsedComments[i], {
     tags,
     description,
     source
   });
+  console.log(parsedComments[i].tags);
+  return parsedComments;
+}
+
+function filterFiles(files) {
+  return files.filter(
+    file =>
+      file.endsWith("html") ||
+      file.endsWith(".doc.html") ||
+      file.endsWith("docs") ||
+      file.includes("node_modules") ||
+      file.startsWith(".git")
+  );
 }
